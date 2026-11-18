@@ -1,0 +1,70 @@
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Реперепілка</title></head><body>
+<!-- Telegram-віджет (Bot API 10.4, /bots/widgets): флеппі в стилі Atlas для @o_mslvsk, Павло 18.11 #0827bc #4fb2b3 -->
+<style>
+html{background:#09090B}body{margin:0;max-width:480px;margin:0 auto}
+canvas{display:block;width:100%;height:440px;touch-action:none}
+</style>
+<canvas id="c"></canvas>
+<script>
+const TW=window.TelegramWidget||{},HF=TW.HapticFeedback;
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=c.clientWidth||360,H=440,R=Math.min(2,devicePixelRatio||1);
+c.width=W*R;c.height=H*R;x.scale(R,R);
+const G='#09090B',INK='#ECEDEF',I2='#B4B7BF',MU='#7C7F88',FA='#4A4C53',LN='#23252B',M='11px monospace';
+let best=0;try{best=+localStorage.getItem('b')||0}catch(e){}
+let st,y,v,p,sc,t,off;
+function reset(){st=0;y=H/2;v=0;p=[];sc=0;t=0;off=0}
+reset();
+const GAP=130,PW=46,SP=2.1;
+function flap(){if(st==2){if(t>30)reset();return}st=1;v=-5.6;HF&&HF.impactOccurred('light')}
+c.onpointerdown=e=>{e.preventDefault();flap()};
+function lab(s,a,b,col,al){x.fillStyle=col||MU;x.font=M;x.textAlign=al||'left';x.fillText(s,a,b)}
+function bg(){
+x.fillStyle=G;x.fillRect(0,0,W,H);
+x.strokeStyle=LN;x.lineWidth=1;
+for(let k=0;k<9;k++){x.beginPath();for(let i=0;i<=W;i+=8){const q=(i+off*.4)/W;const yy=60+k*42+Math.sin(q*6.3+k*.9)*14+Math.sin(q*13+k)*6;i?x.lineTo(i,yy):x.moveTo(i,yy)}x.stroke()}
+x.strokeStyle=FA;x.strokeRect(6.5,6.5,W-13,H-13);
+for(let i=16;i<W-10;i+=20){x.beginPath();x.moveTo(i-(off*.4%20),H-7);x.lineTo(i-(off*.4%20),H-(i%100<20?15:11));x.stroke()}
+lab('АРКУШ 07 · РЕПЕРЕПІЛКА',14,24,I2);
+lab('49°50′N 24°01′E',W-14,H-20,FA,'right')}
+function bird(){
+x.save();x.translate(W*.28,y);x.rotate(Math.max(-.5,Math.min(1.1,v/9)));
+const g=x.createLinearGradient(-11,0,11,0);g.addColorStop(0,'#FFF');g.addColorStop(.3,'#9EA3AD');g.addColorStop(.5,'#F1F3F5');g.addColorStop(.74,'#6C717B');g.addColorStop(1,'#D7DADF');
+x.fillStyle=g;x.beginPath();x.ellipse(0,0,12,9,0,0,7);x.fill();
+x.strokeStyle=G;x.beginPath();x.moveTo(-6,0);x.lineTo(6,0);x.moveTo(0,-6);x.lineTo(0,6);x.stroke();
+x.fillStyle=INK;x.beginPath();x.moveTo(11,-2);x.lineTo(18,1);x.lineTo(11,4);x.fill();
+x.strokeStyle=I2;x.beginPath();x.moveTo(-10,-3);x.lineTo(-17,-8+Math.sin(t*.5)*5);x.stroke();
+x.restore()}
+function pipe(o){
+x.fillStyle=G;x.strokeStyle=I2;
+for(const[a,b]of[[0,o.g],[o.g+GAP,H]]){x.fillRect(o.x,a,PW,b-a);x.strokeRect(o.x+.5,a+.5,PW-1,b-a-1);
+for(let h=a+12;h<b-6;h+=12){x.beginPath();x.moveTo(o.x+.5,h);x.lineTo(o.x+(h%36?6:12),h);x.stroke()}}
+lab('▲'+o.h,o.x+PW/2,o.g+GAP+16,INK,'center')}
+function step(){
+t++;
+if(st==1){
+v+=.32;y+=v;off+=SP;
+if(!p.length||p[p.length-1].x<W-190){const g=40+Math.random()*(H-GAP-90);p.push({x:W,g,h:Math.round(1800+(H-g)*3)+' м',s:0})}
+for(const o of p){o.x-=SP;if(!o.s&&o.x+PW<W*.28){o.s=1;sc++}
+if(W*.28+11>o.x&&W*.28-11<o.x+PW&&(y-8<o.g||y+8>o.g+GAP))die()}
+p=p.filter(o=>o.x>-PW);
+if(y>H-12||y<10)die()
+}else if(st==0){y=H/2+Math.sin(t*.07)*8;off+=.6}
+bg();p.forEach(pipe);bird();
+lab('ВІДМІТКА '+String(sc).padStart(3,'0'),W-14,24,INK,'right');
+if(st==0){panel('Тапни, щоб злетіти','Перепілка з теодолітом знімає Карпати. Пролітай між хребтами й не врізайся у висоти')}
+if(st==2){panel('Зйомку завершено',sc+' реперів · рекорд '+best+(t>30?' · тапни ще раз':''))}
+requestAnimationFrame(step)}
+function die(){if(st!=1)return;st=2;t=0;if(sc>best){best=sc;try{localStorage.setItem('b',best)}catch(e){}}
+HF&&HF.notificationOccurred('error')}
+function panel(a,b){
+const w=Math.min(W-40,300),l=(W-w)/2,tp=H/2+40;
+x.fillStyle='rgba(9,9,11,.86)';x.fillRect(l,tp,w,84);x.strokeStyle=FA;x.strokeRect(l+.5,tp+.5,w-1,83);
+x.fillStyle=INK;x.font='300 20px sans-serif';x.textAlign='center';x.fillText(a,W/2,tp+30);
+x.fillStyle=I2;x.font='12px sans-serif';
+const ws=b.split(' ');let ln='',yy=tp+52;for(const s of ws){if(x.measureText(ln+s).width>w-24){x.fillText(ln,W/2,yy);ln='';yy+=16}ln+=s+' '}x.fillText(ln,W/2,yy)}
+step();
+TW.ready&&TW.ready();
+</script>
+
+</body></html>
